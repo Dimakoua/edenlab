@@ -8,7 +8,6 @@ defmodule TestApp.Brands.Brand do
     field :name, :string
   end
 
-
   @doc false
   def changeset(brand, attrs) do
     brand

@@ -1,5 +1,6 @@
 defmodule TestAppWeb.BrandView do
   use TestAppWeb, :view
+
   def render("index.json", %{brands: brands}) do
     %{data: render_many(brands, TestAppWeb.BrandView, "brand.json")}
   end

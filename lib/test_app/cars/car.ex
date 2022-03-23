@@ -20,7 +20,7 @@ defmodule TestApp.Cars.Car do
     |> cast(attrs, [:brand_id, :model, :year, :body_type, :is_electric])
     |> validate_required([:brand_id, :model, :year, :body_type, :is_electric])
     |> validate_inclusion(:body_type, @body_type)
-    |> validate_inclusion(:year, 1886..Date.utc_today.year)
+    |> validate_inclusion(:year, 1886..Date.utc_today().year)
     |> assoc_constraint(:brand)
   end
 end

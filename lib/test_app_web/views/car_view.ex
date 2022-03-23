@@ -1,5 +1,6 @@
 defmodule TestAppWeb.CarView do
   use TestAppWeb, :view
+
   def render("index.json", %{cars: cars}) do
     %{data: render_many(cars, TestAppWeb.CarView, "car_with_preload.json")}
   end

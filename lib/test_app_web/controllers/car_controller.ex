@@ -4,10 +4,7 @@ defmodule TestAppWeb.CarController do
   alias TestApp.Cars
 
   def index(conn, params) do
-    cars = params
-    |> Map.to_list()
-    |> Enum.map(fn {key, value} -> {String.to_existing_atom(key), value} end)
-    |> Cars.list_cars()
+    cars = Cars.list_cars(params)
 
     render(conn, "index.json", cars: cars)
   end
@@ -17,8 +14,7 @@ defmodule TestAppWeb.CarController do
       {:ok, car} ->
         conn
         |> put_status(200)
-        |> render("show.json", car: car )
-
+        |> render("show.json", car: car)
 
       {:error, %Ecto.Changeset{} = changeset} ->
         conn

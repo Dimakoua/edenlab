@@ -1,9 +1,10 @@
 defmodule TestAppWeb.ChangesetView do
   use TestAppWeb, :view
+  alias TestApp.Cars.Car
 
   def translate_errors(%Ecto.Changeset{errors: errors}) do
     Enum.map(errors, fn {key, error} ->
-      entry_type = type(TestApp.Cars.Car.__schema__(:type, key))
+      entry_type = type(Car.__schema__(:type, key))
 
       %{
         entry: key,
@@ -23,27 +24,36 @@ defmodule TestAppWeb.ChangesetView do
 
   defp rules(error) do
     case error do
-      {_, [type: {_, Ecto.Enum, %{mappings: mappings}}, validation: :cast]} -> %{
-        description: translate_error(error),
-        values: Keyword.values(mappings) |> Enum.join(","),
-        validation: "subset"
-      }
-      {_, [type: Ecto.UUID, validation: _]} -> %{
-        description: translate_error(error),
-        validation: "exists"
-      }
-      {_, [validation: :inclusion, enum: from..to]} -> %{
-        description: translate_error(error),
-        values: %{from: from, to: to},
-        validation: "inclusion"
-      }
-      {_, [validation: validation]} -> %{
-        description: translate_error(error),
-        validation: validation
-      }
-      _ -> %{
-        description: translate_error(error),
-      }
+      {_, [type: {_, Ecto.Enum, %{mappings: mappings}}, validation: :cast]} ->
+        %{
+          description: translate_error(error),
+          values: Keyword.values(mappings) |> Enum.join(","),
+          validation: "subset"
+        }
+
+      {_, [type: Ecto.UUID, validation: _]} ->
+        %{
+          description: translate_error(error),
+          validation: "exists"
+        }
+
+      {_, [validation: :inclusion, enum: from..to]} ->
+        %{
+          description: translate_error(error),
+          values: %{from: from, to: to},
+          validation: "inclusion"
+        }
+
+      {_, [validation: validation]} ->
+        %{
+          description: translate_error(error),
+          validation: validation
+        }
+
+      _ ->
+        %{
+          description: translate_error(error)
+        }
     end
   end
 

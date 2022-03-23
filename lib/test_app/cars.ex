@@ -6,8 +6,8 @@ defmodule TestApp.Cars do
   import Ecto.Query, warn: false
   alias TestApp.Repo
 
-  alias TestApp.Cars.Car
   alias TestApp.Brands.Brand
+  alias TestApp.Cars.Car
 
   @doc """
   Returns the list of cars.
@@ -18,14 +18,17 @@ defmodule TestApp.Cars do
       [%Car{}, ...]
 
   """
-  def list_cars([]) do
-    Repo.all(Car)
-    |> Repo.preload(:brand)
+  def list_cars(params) do
+    params
+    |> prepare_filter_params()
+    |> build_query()
+    |> Repo.all()
   end
 
-  def list_cars(filters) do
-    build_query(filters)
-    |> Repo.all()
+  defp prepare_filter_params(params) do
+    params
+    |> Map.to_list()
+    |> Enum.map(fn {key, value} -> {String.to_existing_atom(key), value} end)
   end
 
   defp build_query(filters) do
@@ -33,25 +36,32 @@ defmodule TestApp.Cars do
 
     query
     |> filter(filters)
-    |> maybe_preload_brand(filters[:brand])
-  end
-
-  defp maybe_preload_brand(query, nil), do: query
-  defp maybe_preload_brand(query, value) do
-    from(cars in query,
-      join: brand in Brand,
-      on: brand.id == cars.brand_id,
-      where: brand.name == ^value,
-      preload: [brand: brand]
-    )
+    |> join_brand()
+    |> maybe_filter_brand(filters[:brand])
   end
 
   defp filter(query, filters) do
     where = Keyword.take(filters, [:body_type, :is_electric, :model, :year])
 
-    query
-    |> where(^where)
+    where(query, ^where)
   end
+
+  defp join_brand(query) do
+    from(cars in query,
+      join: brand in Brand,
+      on: brand.id == cars.brand_id,
+      preload: [brand: brand]
+    )
+  end
+
+  defp maybe_filter_brand(query, nil), do: query
+
+  defp maybe_filter_brand(query, value) do
+    from([car, brand] in query,
+      where: brand.name == ^value
+    )
+  end
+
   @doc """
   Gets a single car.
 
